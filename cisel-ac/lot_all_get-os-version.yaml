@@ -1,0 +1,9 @@
+---
+- name: Check OS Version via /etc/issue
+  hosts: all 
+  tasks:
+   - name: cat /etc/issue
+     shell: cat /etc/issue
+     register: etc_issue
+   - debug: msg="{{etc_issue.stdout_lines}}"
+

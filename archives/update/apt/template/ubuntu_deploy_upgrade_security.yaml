@@ -1,0 +1,28 @@
+---
+- hosts: ansible_hosts 
+
+  tasks:
+
+  - name: Make a copy of original sources.list
+    shell: cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+
+  - name: Create security sources.list
+    shell: cat /etc/apt/sources.list.bkp|grep secu >/etc/apt/security.sources.list
+
+  - name: Update cache
+    apt: update_cache=yes
+
+  - name: Install security updates
+    shell: apt-get upgrade -oDir::Etc::SourceList=/etc/apt/security.sources.list --force-yes -y
+
+  - name: check if a reboot is required
+    shell: "[ -f /var/run/reboot-required ]"
+    failed_when: False
+    register: reboot_required
+    changed_when: reboot_required.rc == 0
+    notify: reboot
+
+  handlers:
+  - name: reboot
+    command: /sbin/reboot
+

@@ -1,0 +1,113 @@
+---
+# Playbook pour le setup des VM Linux (Ubuntu)
+# v1.0 FCA CISEL 23.07.2019
+- name: Application des Config de base sur la VM
+  hosts: all
+  roles:
+     - jnv.unattended-upgrades
+
+  tasks:
+   - name: Obtenir la version de l'OS
+     shell: cat /etc/issue
+     register: etc_issue
+   - debug: msg="{{etc_issue.stdout_lines}}"
+
+   - name: Install NTP package
+     apt:
+       name: ntp
+       update_cache: yes
+
+   - name: Configuration du service NTP
+     copy:
+       src: /var/lib/awx/projects/cisel-ac/templates/ntp.conf
+       dest: /etc/ntp.conf
+       owner: root
+       group: root
+       mode: '0644'
+
+   - name: Activation et démarrage du service NTP
+     systemd:
+       name: ntp
+       enabled: yes
+       masked: no
+       state: restarted
+
+   - name: Install SNMP packages
+     apt:
+      name: "{{item}}"
+      state: present
+     with_items:
+       - snmp
+       - snmp-mibs-downloader
+       - snmpd
+
+   - name: Configuration du service SNMP
+     copy:
+      src: /var/lib/awx/projects/cisel-ac/templates/snmpd.conf
+      dest: /etc/snmp/snmpd.conf
+      owner: root
+      group: root
+      mode: '0644'
+
+   - name: Activation et démarrage du service SNMPD
+     systemd:
+       name: snmpd
+       enabled: yes
+       state: restarted
+
+   - name: Activation du firewall UFW
+     ufw:
+       state: enabled
+       policy: deny
+
+   - name: Configuration du firewall UFW pour SSH
+     ufw:
+         rule: allow
+         name: OpenSSH
+
+   - name: Configuration du firewall UFW pour NTP
+     ufw:
+       rule: allow
+       port: 123
+       proto: udp
+
+   - name: Configuration du firewall UFW pour SNMP
+     ufw:
+       rule: allow
+       port: 161
+       proto: udp
+
+   - name: Configuration de la Timezone Europe/Zurich
+     timezone:
+       name: Europe/Zurich
+
+   - name: Clean du MOTD Ubuntu
+     shell: rm -rf /etc/update-motd.d/*
+   - name: Upload MOTD CISEL
+     copy:
+      src: /var/lib/awx/projects/cisel-ac/templates/00-header
+      dest: /etc/update-motd.d/00-header
+      owner: root
+      group: root
+      mode: '0755'
+
+   - name: Install NCDU package
+     apt:
+       name: ncdu
+       update_cache: yes
+
+   - name: Upload de la config SSH
+     copy:
+       src: /var/lib/awx/projects/cisel-ac/templates/sshd_config
+       dest: /etc/ssh/sshd_config
+       owner: root
+       group: root
+       mode: '0644'
+
+   - name: Reload du service SSH
+     systemd:
+       name: ssh
+       enabled: yes
+       masked: no
+       state: reloaded
+

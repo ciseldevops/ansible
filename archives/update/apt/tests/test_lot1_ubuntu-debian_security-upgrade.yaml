@@ -1,0 +1,41 @@
+---
+  - name: PREPARATION - Update apt.conf file
+    template: src=/etc/ansible/playbooks/update/apt/files/apt.conf dest=/etc/apt/apt.conf
+
+  - name: PREPARATION - Update apt packages
+    apt:
+      update_cache: "yes"
+
+  - name: PREPARATION - Install python-apt
+    raw: sudo apt-get -y install python-apt
+
+  - name: PREPARATION - Install aptitude
+    raw: sudo apt-get -y install aptitude
+
+  - name: PREPARATION - Make a copy of original sources.list
+    shell: cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+
+  - name: PREPARATION - Create security sources.list
+    shell: cat /etc/apt/sources.list.bkp | grep secu >/etc/apt/security.sources.list
+
+  - name: PREPARATION - Replace sources.list with security only sources 
+    shell: cp /etc/apt/security.sources.list /etc/apt/sources.list
+
+  - name: UPGRADE - Upgrade apt packages 
+    apt:
+      update_cache: "yes"
+      upgrade: "yes"
+
+  - name: FINALIZE - Restore original sources.list
+    shell: mv /etc/apt/sources.list.bkp /etc/apt/sources.list
+
+  - name: FINALIZE - Check if a reboot is required
+    shell: "[ -f /var/run/reboot-required ]"
+    failed_when: False
+    register: reboot_required
+    changed_when: reboot_required.rc == 0
+    notify: reboot
+
+  handlers:
+  - name: reboot
+    command: /sbin/reboot

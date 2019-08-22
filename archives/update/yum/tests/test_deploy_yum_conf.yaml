@@ -1,0 +1,6 @@
+---
+- hosts: test1_centos 
+  tasks:
+     - name: update yum.conf file
+       template: src=/etc/ansible/playbooks/update/yum/files/yum.conf dest=/etc/yum.conf
+

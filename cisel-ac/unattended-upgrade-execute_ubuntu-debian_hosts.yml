@@ -1,0 +1,5 @@
+---
+- hosts: all 
+  tasks:
+  - name: EXECUTION  -  unattended-upgrade -d
+    raw: unattended-upgrade -d

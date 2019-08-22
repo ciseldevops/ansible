@@ -1,0 +1,15 @@
+---
+- hosts: all 
+
+  tasks:
+
+  - name: Control if /var/run/reboot-required exists
+    stat:
+      path: /var/run/reboot-required 
+    register: p
+  - debug:
+      msg: "File exists : ==> Reboot Required" 
+    when: p.stat.exists
+  - debug:
+      msg: "File does not exists : ==> NO Reboot"
+    when: p.stat.exists == False

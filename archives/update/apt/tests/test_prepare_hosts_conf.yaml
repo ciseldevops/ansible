@@ -1,0 +1,10 @@
+---
+- hosts:  test1_ubuntu
+  tasks:
+    
+    - name: 'install python2'
+      raw: sudo apt-get -y install python-apt 
+
+    - name: 'install aptitude'
+      raw: sudo apt-get -y install aptitude
+

@@ -1,0 +1,4 @@
+---
+- hosts: lot1_spontis 
+  roles:
+     - jnv.unattended-upgrades

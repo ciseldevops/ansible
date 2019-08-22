@@ -1,0 +1,5 @@
+---
+- hosts: lot1_spontis
+  tasks:
+  - name: EXECUTION  -  unattended-upgrade -d
+    raw: unattended-upgrade -d
