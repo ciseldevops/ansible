@@ -1,0 +1,14 @@
+---
+# Playbook pour test powershell creation device PRTG
+# v1.0 SME test powershell
+#- name: Creation devices et senseurs sur PRTG
+#  hosts: localhost
+#  tasks:
+#   - script: /var/lib/awx/projects/cisel-ac/script/test.sh
+- name: ajout des senseurs PRTG
+  hosts: all
+  tasks:
+#   - debug:
+#      msg: "{{ hostvars[inventory_hostname].keys() }}"
+   - name : add device to PRTG by calling python
+     local_action: shell curl -k "http://prtg.cisel.lan:5000/api/v1/addserver?name={{inventory_hostname}}&sla={{hostvars[inventory_hostname]['sn_u_sla_type']}}&ip={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"

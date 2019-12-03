@@ -1,0 +1,7 @@
+- name: test cmd from win_command module
+  hosts: all
+  tasks:
+    - name: run netstat and return Ethernet stats 
+      win_command: netstat -a
+      register: netstat
+    - debug: var=netstat

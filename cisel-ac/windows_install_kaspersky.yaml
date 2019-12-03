@@ -1,0 +1,29 @@
+# Playbook pour installation de Kaspersky sur VM Windows 
+# v1.0 FCA test
+- name: Installation de l'Agent et Antivirus Kaspersky sur la VM Windows
+  hosts: all
+  tasks:
+  - name: Create Temp Folder
+    win_file:
+      path: C:\Temp
+      state: directory
+
+  - name: Download latest installer
+    win_get_url:
+      url: https://publicsources.s3.eu-west-2.amazonaws.com/latestInstallerNetAgent.exe 
+      dest: C:\Temp\latestInstallerNetAgent.exe
+
+  - name: RAW - Install Kaspersky on VM 
+    raw: 'c:\Temp\latestInstallerNetAgent.exe -s'
+
+#  - name: Install NetAgent and KES on VM
+#    win_command: 'latestInstallerNetAgent.exe /s'
+#    args:
+#      chdir: C:\temp
+
+#  - name: Install NetAgent and KES on VM 
+#    win_package:
+#      path: C:\\latestInstallerNetAgent.exe 
+#      product_id: NetAgent_KES 
+#      arguments: /S
+#      state: present

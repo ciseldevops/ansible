@@ -1,0 +1,13 @@
+---
+# Playbook pour ajout de la VM dans PRTG 
+# v1.0 FCA test
+- name: Ajout dans PRTG 
+  hosts: all
+  tasks:
+    - name : add device to PRTG by calling python webservice
+      win_get_url:
+        url:  "http://prtg.cisel.lan:5000/api/v1/addserver?name={{inventory_hostname}}&sla={{hostvars[inventory_hostname]['sn_u_sla_type']}}&ip={{hostvars[inventory_hostname]['sn_ip_address']}}" 
+        dest: C:\prtg.txt
+#
+#      local_action: shell curl -k "http://prtg.cisel.lan:5000/api/v1/addserver?name={{inventory_hostname}}&sla={{hostvars[inventory_hostname]['sn_u_sla_type']}}&ip={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+#      local_action: shell curl -k "http://prtg.cisel.lan:5000/api/v1/addserver?name={{inventory_hostname}}&sla={{hostvars[inventory_hostname]['sn_u_sla_type']}}&ip={{hostvars[inventory_hostname]['sn_ip_address']}}"

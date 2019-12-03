@@ -1,0 +1,8 @@
+---
+# Playbook pour le setup des VM Linux (Ubuntu)
+# v1.0 FCA CISEL 23.07.2019
+# tips : update_cache mettre a "no" sinon on a des erreur de lock apt
+- name: Application des Config de base sur la VM
+  hosts: all
+  roles:
+     - jnv.unattended-upgrades

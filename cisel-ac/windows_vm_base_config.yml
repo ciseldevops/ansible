@@ -1,0 +1,7 @@
+- name: Applicaiton de la configuration de base sur Windows server 
+  hosts: all
+  tasks:
+    - name: run netstat and return Ethernet stats
+      win_command: netstat -a
+      register: netstat
+    - debug: var=netstat

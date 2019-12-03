@@ -1,21 +1,25 @@
 ---
 # Playbook pour le setup des VM Linux (Ubuntu)
 # v1.0 FCA CISEL 23.07.2019
+# tips : update_cache mettre a "no" sinon on a des erreur de lock apt
 - name: Application des Config de base sur la VM
   hosts: all
-  roles:
-     - jnv.unattended-upgrades
 
   tasks:
-   - name: Obtenir la version de l'OS
-     shell: cat /etc/issue
-     register: etc_issue
-   - debug: msg="{{etc_issue.stdout_lines}}"
+   - name: Remove the dpkg locks
+     file:
+       path: "{{ item }}" 
+       state: absent
+     with_items:
+       - /var/lib/dpkg/lock
+       - /var/lib/apt/lists/lock
+       - /var/cache/apt/archives/lock
+       - /var/lib/dpkg/lock-frontend
 
    - name: Install NTP package
      apt:
        name: ntp
-       update_cache: yes
+       update_cache: no
 
    - name: Configuration du service NTP
      copy:
@@ -34,12 +38,8 @@
 
    - name: Install SNMP packages
      apt:
-      name: "{{item}}"
+      name: ['snmp', 'snmp-mibs-downloader', 'snmpd']
       state: present
-     with_items:
-       - snmp
-       - snmp-mibs-downloader
-       - snmpd
 
    - name: Configuration du service SNMP
      copy:
@@ -81,20 +81,10 @@
      timezone:
        name: Europe/Zurich
 
-   - name: Clean du MOTD Ubuntu
-     shell: rm -rf /etc/update-motd.d/*
-   - name: Upload MOTD CISEL
-     copy:
-      src: /var/lib/awx/projects/cisel-ac/templates/00-header
-      dest: /etc/update-motd.d/00-header
-      owner: root
-      group: root
-      mode: '0755'
-
    - name: Install NCDU package
      apt:
        name: ncdu
-       update_cache: yes
+       update_cache: no
 
    - name: Upload de la config SSH
      copy:
@@ -111,3 +101,12 @@
        masked: no
        state: reloaded
 
+   - name: Change CISADM password
+     user:
+      name: "cisadm"
+      password: "{{ cisadm_pwd | password_hash('sha512') }}"
+      update_password: always
+
+#Fait directement en appel vers API PRTG depuis Calm
+   - name : add device to PRTG by calling python
+     local_action: shell curl -k "http://prtg.cisel.lan:5000/api/v1/addserver?name={{inventory_hostname}}&sla={{hostvars[inventory_hostname]['sn_u_sla_type']}}&ip={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"

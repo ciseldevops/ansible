@@ -1,6 +1,0 @@
----
-- hosts: spontis_lot2_ubuntu 
-  tasks:
-     - name: update apt.conf file
-       template: src=/etc/ansible/playbooks/update/apt/files/apt.conf dest=/etc/apt/apt.conf
-

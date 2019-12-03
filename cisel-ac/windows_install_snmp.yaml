@@ -1,0 +1,23 @@
+# Playbook pour installation de SNMP sur VM  Windows 
+# v1.0 FCA test
+- name: Installation de SNMP sur VM  Windows 
+  hosts: all
+  tasks:
+  - name: Create Temp Folder
+    win_file:
+      path: C:\Temp
+      state: directory
+
+#  - name: Download latest SNMP install script
+#    win_copy:
+#      src: installSNMP.ps1 
+#      dest: c:\Temp\installSNMP.ps1
+
+  - name: Download latest installer
+    win_get_url:
+      url: https://publicsources.s3.eu-west-2.amazonaws.com/installSNMP.ps1 
+      dest: C:\Temp\installSNMP.ps1
+
+  - name: Execute SNMP install script
+    win_shell: c:\Temp\installSNMP.ps1
+    
